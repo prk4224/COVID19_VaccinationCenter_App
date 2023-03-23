@@ -2,7 +2,6 @@ package com.jaehong.covid19_vaccinationcenterapp.di
 
 import android.util.Log
 import com.jaehong.covid19_vaccinationcenterapp.Constants.BASE_URL
-import com.jaehong.covid19_vaccinationcenterapp.Constants.SERVICE_KEY
 import com.jaehong.data.remote.service.VaccinationCenterService
 import dagger.Module
 import dagger.Provides
