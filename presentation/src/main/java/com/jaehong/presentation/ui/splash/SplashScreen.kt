@@ -1,4 +1,4 @@
-package com.jaehong.presentation.ui
+package com.jaehong.presentation.ui.splash
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -42,5 +42,5 @@ fun SplashScreen(
         )
     }
 
-    splashViewModel.startAnimation()
+    splashViewModel.startLoading()
 }

@@ -1,12 +1,13 @@
-package com.jaehong.presentation.ui
+package com.jaehong.presentation.ui.splash
 
 import android.util.Log
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.jaehong.domain.model.CenterItem
 import com.jaehong.domain.model.result.ApiResult
 import com.jaehong.domain.usecase.SplashUseCase
+import com.jaehong.presentation.ui.navigation.Destination
+import com.jaehong.presentation.ui.navigation.VaccinationAppNavigator
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -19,7 +20,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SplashViewModel @Inject constructor(
-    private val splashUseCase: SplashUseCase
+    private val splashUseCase: SplashUseCase,
+    private val vaccinationAppNavigator: VaccinationAppNavigator,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(false)
@@ -39,16 +41,16 @@ class SplashViewModel @Inject constructor(
         }
     }
 
-    fun startAnimation() {
+    fun startLoading() {
         initLoadingValue()
 
-        viewModelScope.launch {
-            if (loadingValue.value == 80 && uiState.value.not()) {
-                loading.cancel()
-            }
-            if (loadingValue.value == 100) {
-                loading.cancel()
-            }
+        if (loadingValue.value == 80 && uiState.value.not()) {
+            loading.cancel()
+        }
+
+        if (loadingValue.value == 100) {
+            loading.cancel()
+            onNavigateToMapView()
         }
     }
 
@@ -96,6 +98,12 @@ class SplashViewModel @Inject constructor(
         _uiState.value = true
         if (loading.isCancelled && loadingValue.value == 80) {
             initLoadingValue()
+        }
+    }
+
+    private fun onNavigateToMapView() {
+        viewModelScope.launch {
+            vaccinationAppNavigator.navigateTo(Destination.MapView())
         }
     }
 }
