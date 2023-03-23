@@ -4,6 +4,9 @@ plugins {
     id 'kotlin-kapt'
 }
 
+def Properties properties = new Properties()
+properties.load(project.rootProject.file('local.properties').newDataInputStream())
+
 android {
     namespace 'com.jaehong.data'
     compileSdk 32
@@ -11,6 +14,7 @@ android {
     defaultConfig {
         minSdk 21
         targetSdk 32
+        buildConfigField("String", "API_KEY", properties.getProperty("api_key"))
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
