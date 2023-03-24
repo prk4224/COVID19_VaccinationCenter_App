@@ -26,6 +26,8 @@ object Mapper {
             facilityName = this.facilityName,
             phoneNumber = this.phoneNumber,
             updatedAt = this.updatedAt,
+            lat = this.lat,
+            lng = this.lng,
             centerType = this.centerType,
         )
     }

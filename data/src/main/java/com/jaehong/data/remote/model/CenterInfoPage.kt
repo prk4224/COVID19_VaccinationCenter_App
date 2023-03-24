@@ -14,6 +14,8 @@ data class CenterInfoPage(
                 centerName = it.centerName,
                 facilityName = it.facilityName,
                 phoneNumber = it.phoneNumber,
+                lat = it.lat,
+                lng = it.lng,
                 updatedAt = it.updatedAt,
                 centerType = it.centerType,
                 )
