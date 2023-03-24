@@ -1,22 +1,110 @@
 package com.jaehong.presentation.ui.map
 
-import androidx.compose.foundation.background
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.runtime.Composable
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.jaehong.presentation.util.ArrayConstants.permissions
+import com.naver.maps.geometry.LatLng
+import com.naver.maps.map.CameraPosition
+import com.naver.maps.map.CameraUpdate
+import com.naver.maps.map.compose.*
+import com.naver.maps.map.overlay.Marker
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 
+@OptIn(ExperimentalCoroutinesApi::class, ExperimentalNaverMapApi::class)
 @Composable
 fun MapViewScreen(
-    splashViewModel: MapViewModel = hiltViewModel()
+    mapViewModel: MapViewModel = hiltViewModel()
 ) {
+    val context = LocalContext.current
+    val centerItems = mapViewModel.centerItems.collectAsState().value
+    val permissionState = mapViewModel.permissionState.collectAsState().value
+    val selected = remember {
+        mutableStateOf(false)
+    }
 
-    Box(modifier = Modifier
-        .fillMaxSize()
-        .background(Color.Black)
-    ) {
 
+    val selectedMarker = remember {
+        mutableStateOf(Marker())
+    }
+    val cameraPositionState: CameraPositionState = rememberCameraPositionState {
+        position = CameraPosition(LatLng(37.532600, 127.024612), 15.0)
+    }
+
+    val moveCamera: (LatLng) -> Unit = {
+        cameraPositionState.move(CameraUpdate.scrollTo(it))
+    }
+
+    val mapProperties by remember {
+        mutableStateOf(
+            MapProperties(
+                maxZoom = 25.0,
+                minZoom = 5.0,
+            )
+        )
+    }
+    val mapUiSettings by remember {
+        mutableStateOf(
+            MapUiSettings(isLocationButtonEnabled = false)
+        )
+    }
+
+    // Launcher
+    val launcherMultiplePermissions = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { permissionsMap ->
+        val areGranted = permissionsMap.values.reduce { acc, next -> acc && next }
+        if (areGranted) {
+            mapViewModel.getCurrentLocation(
+                context,
+                moveCamera = { location ->  moveCamera(location) }
+            )
+        }
+    }
+
+    if (permissionState) {
+        launcherMultiplePermissions.launch(permissions)
+    }
+
+    mapViewModel.getCurrentLocation(
+        context,
+        moveCamera = { location -> moveCamera(location) }
+    )
+
+    Box(Modifier.fillMaxSize()) {
+        NaverMapScreen(
+            centerItems = centerItems,
+            mapProperties = mapProperties,
+            mapUiSettings = mapUiSettings,
+            cameraPositionState = cameraPositionState,
+            marker =  { item, color ->
+                MarkerScreen(
+                    item = item,
+                    color = color,
+                    onClick = { marker ->
+                        if(selectedMarker.value == marker) {
+                            false
+                        } else {
+                            selectedMarker.value = marker
+                            true
+                        }
+                    },
+                )
+            },
+        )
+
+        BottomSheetScreen(
+            isVisible = selected.value,
+            modifier = Modifier
+                .fillMaxWidth()
+                .align(Alignment.BottomCenter)
+        )
     }
 }
