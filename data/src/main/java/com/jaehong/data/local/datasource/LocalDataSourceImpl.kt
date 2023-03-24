@@ -7,13 +7,19 @@ import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
 
 class LocalDataSourceImpl @Inject constructor(
-    private val dataBase: VaccinationCenterDataBase
-): LocalDataSource {
+    private val dataBase: VaccinationCenterDataBase,
+) : LocalDataSource {
+    override suspend fun getCenterInfo()
+            : Flow<List<CenterInfoEntity>> = flow {
+        emit(dataBase.centerInfoDao().getCenterItems())
+    }
 
     override suspend fun insertCenterItems(
         centerItems: List<CenterInfoEntity>
     ): Flow<Boolean> = flow {
-        emit(dataBase.centersDao().insertCenterInfoWithListTransaction(centerItems))
+        emit(dataBase.centerInfoDao().insertCenterInfoWithListTransaction(centerItems))
     }
+
+
 
 }
