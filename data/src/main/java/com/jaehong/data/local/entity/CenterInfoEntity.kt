@@ -12,6 +12,8 @@ data class CenterInfoEntity (
     val facilityName: String,
     val phoneNumber: String,
     val updatedAt: String,
+    val lat: String,
+    val lng: String,
     val centerType: String,
 ) {
     fun mappingCenterInfoEntityFromCenterItem(): CenterItem {
