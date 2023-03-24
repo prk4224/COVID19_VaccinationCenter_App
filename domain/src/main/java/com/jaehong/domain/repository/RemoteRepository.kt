@@ -6,7 +6,7 @@ import kotlinx.coroutines.flow.Flow
 
 interface RemoteRepository {
 
-    suspend fun getVaccinationCenters(page: Int): Flow<ApiResult<List<CenterItem>>>
+    suspend fun getCenterInfo(page: Int): Flow<ApiResult<List<CenterItem>>>
 
 
 }

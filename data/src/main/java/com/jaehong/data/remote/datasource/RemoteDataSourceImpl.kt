@@ -13,9 +13,9 @@ class RemoteDataSourceImpl @Inject constructor(
     private val service: VaccinationCenterService
 ): RemoteDataSource {
 
-    override suspend fun getVaccinationCenters(
+    override suspend fun getCenterInfo(
         page: Int,
     ): Flow<ApiResult<CenterInfoPage>> = flow {
-        emit( safeApiCall { service.getVaccinationCenters(API_KEY,page) } )
+        emit( safeApiCall { service.getCenterInfo(API_KEY,page) } )
     }
 }

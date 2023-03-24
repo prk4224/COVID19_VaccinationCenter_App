@@ -7,7 +7,7 @@ import retrofit2.http.Query
 
 interface VaccinationCenterService {
     @GET("15077586/v1/centers")
-    suspend fun getVaccinationCenters(
+    suspend fun getCenterInfo(
         @Query("serviceKey") key: String,
         @Query("page") page: Int,
     ): Response<CenterInfoPage>

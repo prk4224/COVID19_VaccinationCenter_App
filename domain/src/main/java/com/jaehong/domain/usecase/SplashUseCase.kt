@@ -14,10 +14,10 @@ class SplashUseCase @Inject constructor(
     private val localRepository: LocalRepository
 ) {
 
-    suspend fun getVaccinationCenters(
+    suspend fun getCenterInfo(
         page: Int,
     ): Flow<ApiResult<List<CenterItem>>> = flow {
-        remoteRepository.getVaccinationCenters(page)
+        remoteRepository.getCenterInfo(page)
             .collect { emit(it) }
     }
 

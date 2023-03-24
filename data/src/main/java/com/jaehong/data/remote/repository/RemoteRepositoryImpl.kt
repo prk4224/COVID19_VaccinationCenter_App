@@ -13,10 +13,10 @@ class RemoteRepositoryImpl @Inject constructor(
     private val remoteDataSource: RemoteDataSource
 ) : RemoteRepository {
 
-    override suspend fun getVaccinationCenters(
+    override suspend fun getCenterInfo(
         page: Int
     ): Flow<ApiResult<List<CenterItem>>> = flow {
-        remoteDataSource.getVaccinationCenters(page).collect {
+        remoteDataSource.getCenterInfo(page).collect {
             emit(it.dataFromDomain())
         }
     }

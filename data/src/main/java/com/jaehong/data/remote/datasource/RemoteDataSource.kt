@@ -6,5 +6,5 @@ import kotlinx.coroutines.flow.Flow
 
 interface RemoteDataSource {
 
-    suspend fun getVaccinationCenters(page: Int): Flow<ApiResult<CenterInfoPage>>
+    suspend fun getCenterInfo(page: Int): Flow<ApiResult<CenterInfoPage>>
 }
