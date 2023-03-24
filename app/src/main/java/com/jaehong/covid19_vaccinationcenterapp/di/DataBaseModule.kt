@@ -23,6 +23,7 @@ class DataBaseModule {
     ): VaccinationCenterDataBase {
         return Room.databaseBuilder(
             context, VaccinationCenterDataBase::class.java, VACCINATION_CENTER_NAME)
+            .fallbackToDestructiveMigration()
             .build()
     }
 
@@ -30,5 +31,5 @@ class DataBaseModule {
     @Provides
     fun provideCentersDao(
         dataBase: VaccinationCenterDataBase
-    ): CenterInfoDao = dataBase.centersDao()
+    ): CenterInfoDao = dataBase.centerInfoDao()
 }

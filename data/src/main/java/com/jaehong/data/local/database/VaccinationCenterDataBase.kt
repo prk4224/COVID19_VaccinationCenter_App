@@ -8,11 +8,11 @@ import com.jaehong.data.local.entity.CenterInfoEntity
 @Database(
     entities = [
         CenterInfoEntity::class
-    ], version = 1
+    ], version = 2
 )
 abstract class VaccinationCenterDataBase : RoomDatabase() {
 
-    abstract fun centersDao(): CenterInfoDao
+    abstract fun centerInfoDao(): CenterInfoDao
 
     companion object {
         const val VACCINATION_CENTER_NAME = "VaccinationCenterApp.db"
