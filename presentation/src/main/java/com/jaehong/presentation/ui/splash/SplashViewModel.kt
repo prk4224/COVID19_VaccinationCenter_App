@@ -64,7 +64,7 @@ class SplashViewModel @Inject constructor(
 
     private fun getCenterItems(page: Int) {
         viewModelScope.launch {
-            splashUseCase.getVaccinationCenters(page)
+            splashUseCase.getCenterInfo(page)
                 .catch { Log.d("Get Center Items", "${it.message}") }
                 .collect {
                     when (it) {
@@ -102,7 +102,8 @@ class SplashViewModel @Inject constructor(
     }
 
     private fun onNavigateToMapView() {
-        viewModelScope.launch {
+       viewModelScope.launch {
+           vaccinationAppNavigator.navigateBack()
             vaccinationAppNavigator.navigateTo(Destination.MapView())
         }
     }
