@@ -26,15 +26,12 @@ fun MapViewScreen(
     val context = LocalContext.current
     val centerItems = mapViewModel.centerItems.collectAsState().value
     val permissionState = mapViewModel.permissionState.collectAsState().value
-    val selected = remember {
-        mutableStateOf(false)
-    }
-
     val colorMap = mapViewModel.colorHashMap.collectAsState().value
 
-    val selectedMarker = remember {
-        mutableStateOf(Marker())
+    val selectedItem = remember {
+        mutableStateOf<CenterItem?>(null)
     }
+
     val cameraPositionState: CameraPositionState = rememberCameraPositionState {
         position = CameraPosition(LatLng(37.532600, 127.024612), 15.0)
     }
@@ -88,16 +85,18 @@ fun MapViewScreen(
             marker =  { item, color ->
                 MarkerScreen(
                     item = item,
-                    color = color,
-                    onClick = { marker ->
-                        if(selectedMarker.value == marker) {
                     color = colorMap[item.centerType] ?: throw IllegalArgumentException("Color Type Error"),
+                    state = selectedItem.value == item,
+                    onClick = {
+                        if (selectedItem.value == item) {
+                            selectedItem.value = null
                             false
                         } else {
-                            selectedMarker.value = marker
+                            selectedItem.value = item
                             true
                         }
                     },
+                    moveCamera = { latLng -> moveCamera(latLng) },
                 )
             },
         )
