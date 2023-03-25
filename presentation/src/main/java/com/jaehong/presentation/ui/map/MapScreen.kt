@@ -58,6 +58,7 @@ fun MapViewScreen(
     val launcherMultiplePermissions = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
     ) { permissionsMap ->
+        mapViewModel.updatePermissionState(false)
         val areGranted = permissionsMap.values.reduce { acc, next -> acc && next }
         if (areGranted) {
             mapViewModel.getCurrentLocation(
@@ -82,7 +83,12 @@ fun MapViewScreen(
             mapProperties = mapProperties,
             mapUiSettings = mapUiSettings,
             cameraPositionState = cameraPositionState,
-            marker =  { item, color ->
+            initPosition = { mapViewModel.getCurrentLocation(
+                context = context,
+                moveCamera = { position -> moveCamera(position) }
+            ) },
+            onMapClick = { pointF, latLng -> selectedItem.value = null },
+            marker = { item ->
                 MarkerScreen(
                     item = item,
                     color = colorMap[item.centerType] ?: throw IllegalArgumentException("Color Type Error"),

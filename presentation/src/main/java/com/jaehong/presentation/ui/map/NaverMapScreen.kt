@@ -12,15 +12,18 @@ fun NaverMapScreen(
     mapProperties: MapProperties,
     mapUiSettings: MapUiSettings,
     cameraPositionState: CameraPositionState,
-    marker: @Composable (CenterItem,Color) -> Unit,
-    ) {
+    onMapClick: (PointF, LatLng) -> Unit,
+    initPosition: () -> Unit,
+    marker: @Composable (CenterItem) -> Unit,
+) {
     NaverMap(
         properties = mapProperties,
         uiSettings = mapUiSettings,
-        cameraPositionState = cameraPositionState
+        cameraPositionState = cameraPositionState,
+        onMapLoaded = { initPosition() },
     ) {
         centerItems.forEach {
-            marker(it, Color.Red)
+            marker(it)
         }
     }
 }

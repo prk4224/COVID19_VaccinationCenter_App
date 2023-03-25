@@ -62,23 +62,20 @@ class MapViewModel @Inject constructor(
         val fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(context)
         fusedLocationProviderClient.lastLocation
             .addOnSuccessListener {
-                moveCamera( LatLng(it.latitude, it.longitude))
+                val location = LatLng(it.latitude, it.longitude)
+                moveCamera(location)
             }.addOnFailureListener {
                 Log.d("Get Current Location", "현재위치 불러오기 실패")
             }
     }
 
-    private fun checkedPermission(
-        context: Context,
-    ): Boolean {
-        updatePermissionState(false)
+    private fun checkedPermission(context: Context): Boolean {
         return if (permissions.all {
                 ContextCompat.checkSelfPermission(
                     context,
                     it
                 ) == PackageManager.PERMISSION_GRANTED
-            }.not()
-        ) {
+            }.not()) {
             updatePermissionState(true)
             true
         } else {
