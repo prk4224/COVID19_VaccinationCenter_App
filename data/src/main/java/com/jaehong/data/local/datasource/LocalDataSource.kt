@@ -8,4 +8,6 @@ interface LocalDataSource {
     suspend fun getCenterInfo(): Flow<List<CenterInfoEntity>>
 
     suspend fun insertCenterItems(centerItems: List<CenterInfoEntity>): Flow<Boolean>
+
+    suspend fun observeConnectivityAsFlow(): Flow<Boolean>
 }
