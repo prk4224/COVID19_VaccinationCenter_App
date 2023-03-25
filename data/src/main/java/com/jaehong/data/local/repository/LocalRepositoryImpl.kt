@@ -26,4 +26,10 @@ class LocalRepositoryImpl @Inject constructor(
                 emit(it)
             }
     }
+
+    override suspend fun observeConnectivityAsFlow(): Flow<Boolean> = flow {
+        localDataSource.observeConnectivityAsFlow().collect {
+            emit(it)
+        }
+    }
 }
