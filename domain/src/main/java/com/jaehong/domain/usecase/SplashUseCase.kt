@@ -27,4 +27,10 @@ class SplashUseCase @Inject constructor(
         localRepository.insertCenterItems(centerItems)
             .collect { emit(it) }
     }
+
+    suspend fun observeConnectivityAsFlow(): Flow<Boolean> = flow {
+        localRepository.observeConnectivityAsFlow().collect {
+            emit(it)
+        }
+    }
 }
