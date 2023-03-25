@@ -1,8 +1,6 @@
 package com.jaehong.presentation.ui.map
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import com.jaehong.domain.model.CenterItem
 import com.naver.maps.geometry.LatLng
@@ -15,20 +13,19 @@ import com.naver.maps.map.overlay.Marker
 @Composable
 fun MarkerScreen(
     item: CenterItem,
+    state: Boolean,
     color: Color,
     onClick: (Marker) -> Boolean,
+    moveCamera: (LatLng) -> Unit,
 ) {
-    val state = remember {
-        mutableStateOf(false)
-    }
+    val location = LatLng(item.lat.toDouble(), item.lng.toDouble())
 
     Marker(
-        state = MarkerState(position = LatLng(item.lat.toDouble(), item.lng.toDouble())),
+        state = MarkerState(position = location),
         captionText = item.centerName,
-        iconTintColor = if(state.value) color else Color.Black,
+        iconTintColor = if(state) Color.Red else color,
     ) {
-        val tmep  = onClick(it)
-        state.value = tmep
-        tmep
+        moveCamera(location)
+        onClick(it)
     }
 }

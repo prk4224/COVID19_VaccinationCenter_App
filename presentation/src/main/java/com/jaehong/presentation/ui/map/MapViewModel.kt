@@ -23,10 +23,8 @@ import kotlin.random.Random
 
 @HiltViewModel
 class MapViewModel @Inject constructor(
-    private val mapUseCase: MapUseCase
+    private val mapUseCase: MapUseCase,
 ): ViewModel() {
-
-
     private val _centerItems = MutableStateFlow(listOf<CenterItem>())
     val centerItems = _centerItems.asStateFlow()
 
@@ -83,7 +81,7 @@ class MapViewModel @Inject constructor(
         }
     }
 
-    private fun updatePermissionState(value: Boolean) {
+    fun updatePermissionState(value: Boolean) {
         _permissionState.value = value
     }
 

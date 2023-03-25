@@ -5,17 +5,20 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.jaehong.domain.model.CenterItem
 import com.jaehong.presentation.util.ArrayConstants.permissions
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.CameraPosition
 import com.naver.maps.map.CameraUpdate
 import com.naver.maps.map.compose.*
-import com.naver.maps.map.overlay.Marker
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 @OptIn(ExperimentalCoroutinesApi::class, ExperimentalNaverMapApi::class)
@@ -41,12 +44,7 @@ fun MapViewScreen(
     }
 
     val mapProperties by remember {
-        mutableStateOf(
-            MapProperties(
-                maxZoom = 25.0,
-                minZoom = 5.0,
-            )
-        )
+        mutableStateOf( MapProperties(maxZoom = 25.0, minZoom = 5.0,) )
     }
     val mapUiSettings by remember {
         mutableStateOf(
@@ -62,20 +60,15 @@ fun MapViewScreen(
         val areGranted = permissionsMap.values.reduce { acc, next -> acc && next }
         if (areGranted) {
             mapViewModel.getCurrentLocation(
-                context,
-                moveCamera = { location ->  moveCamera(location) }
+                context = context,
+                moveCamera = { position -> moveCamera(position) }
             )
         }
     }
 
-    if (permissionState) {
+    if(permissionState) {
         launcherMultiplePermissions.launch(permissions)
     }
-
-    mapViewModel.getCurrentLocation(
-        context,
-        moveCamera = { location -> moveCamera(location) }
-    )
 
     Box(Modifier.fillMaxSize()) {
         NaverMapScreen(
