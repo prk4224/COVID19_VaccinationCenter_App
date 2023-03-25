@@ -100,9 +100,8 @@ fun MapViewScreen(
                 )
             },
         )
-
         BottomSheetScreen(
-            isVisible = selected.value,
+            selectedItem = selectedItem.value,
             modifier = Modifier
                 .fillMaxWidth()
                 .align(Alignment.BottomCenter)
