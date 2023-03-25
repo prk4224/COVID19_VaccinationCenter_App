@@ -24,8 +24,8 @@ class SplashViewModel @Inject constructor(
     private val vaccinationAppNavigator: VaccinationAppNavigator,
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(false)
-    val uiState = _uiState.asStateFlow()
+    private val _centerInfoState = MutableStateFlow(false)
+    val centerInfoState = _centerInfoState.asStateFlow()
 
     private val _animationState = MutableStateFlow(0)
     val animationState = _animationState.asStateFlow()
@@ -46,7 +46,6 @@ class SplashViewModel @Inject constructor(
         for (idx in 1..10) {
             getCenterItems(idx)
         }
-    }
 
         increaseLoadingValue()
 
@@ -60,7 +59,7 @@ class SplashViewModel @Inject constructor(
         }
     }
 
-    private fun initLoadingValue() {
+    private fun increaseLoadingValue() {
         loading = viewModelScope.launch {
             delay(20)
             _loadingValue.value++
@@ -101,9 +100,9 @@ class SplashViewModel @Inject constructor(
     }
 
     private fun checkedLoadingValue() {
-        _uiState.value = true
+        _centerInfoState.value = true
         if (loading.isCancelled && loadingValue.value == 80) {
-            initLoadingValue()
+            increaseLoadingValue()
         }
     }
 
