@@ -33,18 +33,24 @@ class SplashViewModel @Inject constructor(
     private val _loadingValue = MutableStateFlow(0)
     val loadingValue = _loadingValue.asStateFlow()
 
+    private val _networkConnectState = MutableStateFlow(false)
+    val networkConnectState = _networkConnectState.asStateFlow()
+
     private lateinit var loading: Job
 
     init {
+        observeNetworkState()
+    }
+
+    fun startLoading() {
         for (idx in 1..10) {
             getCenterItems(idx)
         }
     }
 
-    fun startLoading() {
-        initLoadingValue()
+        increaseLoadingValue()
 
-        if (loadingValue.value == 80 && uiState.value.not()) {
+        if (loadingValue.value == 80 && centerInfoState.value.not()) {
             loading.cancel()
         }
 
@@ -106,5 +112,21 @@ class SplashViewModel @Inject constructor(
            vaccinationAppNavigator.navigateBack()
             vaccinationAppNavigator.navigateTo(Destination.MapView())
         }
+    }
+
+    // Network Check
+    private fun observeNetworkState() {
+        viewModelScope.launch {
+            splashUseCase.observeConnectivityAsFlow()
+                .catch { Log.d("Get Gudie Key Error", "result: ${it.message}") }
+                .collect {
+                    _networkConnectState.value = it
+                }
+        }
+    }
+
+    fun initLoadingValue() {
+        _animationState.value = 0
+        _loadingValue.value = 0
     }
 }

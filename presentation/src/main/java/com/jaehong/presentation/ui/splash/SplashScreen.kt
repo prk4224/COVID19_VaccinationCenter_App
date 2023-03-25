@@ -19,28 +19,39 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 fun SplashScreen(
     splashViewModel: SplashViewModel = hiltViewModel()
 ) {
+    val centerInfoState = splashViewModel.centerInfoState.collectAsState().value
     val loadingValue = splashViewModel.loadingValue.collectAsState().value
     val animationState = splashViewModel.animationState.collectAsState().value
+    val networkConnectState = splashViewModel.networkConnectState.collectAsState().value
 
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center,
-    ) {
-        Text(
-            text = "$loadingValue %",
-            fontSize = 20.sp,
-            modifier = Modifier
-                .padding(bottom = 50.dp)
-        )
-
+    if(networkConnectState.not() && centerInfoState.not()) {
         Box(
-            modifier = Modifier
-                .background(Color.LightGray, RoundedCornerShape(10.dp))
-                .width(animationState.dp)
-                .height(20.dp)
-                .align(Alignment.Center),
-        )
-    }
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ){
+            Text(text = "네트워크를 연결해 주세요 !", color = Color.Red, fontSize = 20.sp)
+        }
+        splashViewModel.initLoadingValue()
+    } else {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center,
+        ) {
+            Text(
+                text = "$loadingValue %",
+                fontSize = 20.sp,
+                modifier = Modifier
+                    .padding(bottom = 50.dp)
+            )
 
-    splashViewModel.startLoading()
+            Box(
+                modifier = Modifier
+                    .background(Color.LightGray, RoundedCornerShape(10.dp))
+                    .width(animationState.dp)
+                    .height(20.dp)
+                    .align(Alignment.Center),
+            )
+        }
+        splashViewModel.startLoading()
+    }
 }
