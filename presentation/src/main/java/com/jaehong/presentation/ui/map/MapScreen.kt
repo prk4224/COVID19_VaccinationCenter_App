@@ -112,5 +112,16 @@ fun MapViewScreen(
                 .fillMaxWidth()
                 .align(Alignment.BottomCenter)
         )
+
+        CurrentPositionButton(
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .padding(15.dp),
+            onClick = {
+                mapViewModel.getCurrentLocation(
+                context = context,
+                moveCamera = { position -> moveCamera(position) }
+            ) }
+        )
     }
 }
