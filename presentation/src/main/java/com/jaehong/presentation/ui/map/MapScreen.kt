@@ -30,6 +30,7 @@ fun MapViewScreen(
         mutableStateOf(false)
     }
 
+    val colorMap = mapViewModel.colorHashMap.collectAsState().value
 
     val selectedMarker = remember {
         mutableStateOf(Marker())
@@ -90,6 +91,7 @@ fun MapViewScreen(
                     color = color,
                     onClick = { marker ->
                         if(selectedMarker.value == marker) {
+                    color = colorMap[item.centerType] ?: throw IllegalArgumentException("Color Type Error"),
                             false
                         } else {
                             selectedMarker.value = marker
