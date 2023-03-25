@@ -19,7 +19,4 @@ class LocalDataSourceImpl @Inject constructor(
     ): Flow<Boolean> = flow {
         emit(dataBase.centerInfoDao().insertCenterInfoWithListTransaction(centerItems))
     }
-
-
-
 }

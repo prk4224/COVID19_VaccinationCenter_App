@@ -1,7 +1,6 @@
 package com.jaehong.domain.usecase
 
 import com.jaehong.domain.model.CenterItem
-import com.jaehong.domain.model.Location
 import com.jaehong.domain.repository.LocalRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
