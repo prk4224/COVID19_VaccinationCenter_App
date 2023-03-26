@@ -7,6 +7,4 @@ import kotlinx.coroutines.flow.Flow
 interface RemoteRepository {
 
     suspend fun getCenterInfo(page: Int): Flow<ApiResult<List<CenterItem>>>
-
-
 }

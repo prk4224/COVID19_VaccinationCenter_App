@@ -13,7 +13,6 @@ class SplashUseCase @Inject constructor(
     private val remoteRepository: RemoteRepository,
     private val localRepository: LocalRepository
 ) {
-
     suspend fun getCenterInfo(
         page: Int,
     ): Flow<ApiResult<List<CenterItem>>> = flow {

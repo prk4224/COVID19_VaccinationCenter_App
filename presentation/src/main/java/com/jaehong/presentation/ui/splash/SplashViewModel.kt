@@ -24,6 +24,8 @@ class SplashViewModel @Inject constructor(
     private val vaccinationAppNavigator: VaccinationAppNavigator,
 ) : ViewModel() {
 
+    private val TAG = "SplashViewModel"
+
     private val _centerInfoState = MutableStateFlow(false)
     val centerInfoState = _centerInfoState.asStateFlow()
 
@@ -70,14 +72,14 @@ class SplashViewModel @Inject constructor(
     private fun getCenterItems(page: Int) {
         viewModelScope.launch {
             splashUseCase.getCenterInfo(page)
-                .catch { Log.d("Get Center Items", "${it.message}") }
+                .catch { Log.d(TAG, "Get Center Items: ${it.message}") }
                 .collect {
                     when (it) {
                         is ApiResult.Success -> {
                             insertCenterItems(it.data, page)
                         }
                         is ApiResult.Error -> {
-                            Log.d("Get Center Items", "${it.exception.message}")
+                            Log.d(TAG, "Get Center Items: ${it.exception.message}")
                         }
                     }
                 }
@@ -87,13 +89,13 @@ class SplashViewModel @Inject constructor(
     private fun insertCenterItems(items: List<CenterItem>, page: Int) {
         viewModelScope.launch {
             splashUseCase.insertCenterItems(items)
-                .catch { Log.d("Insert Center Items", "${it.message}") }
+                .catch { Log.d(TAG, "Insert Center Items: ${it.message}") }
                 .collect {
                     if (it && page == 10) {
                         checkedLoadingValue()
                     }
                     if (it.not()) {
-                        Log.d("Insert Center Items", "No.$page Insert Failure")
+                        Log.d(TAG, "Insert Center Items: No.$page Insert Failure")
                     }
                 }
         }
@@ -113,7 +115,6 @@ class SplashViewModel @Inject constructor(
         }
     }
 
-    // Network Check
     private fun observeNetworkState() {
         viewModelScope.launch {
             splashUseCase.observeConnectivityAsFlow()

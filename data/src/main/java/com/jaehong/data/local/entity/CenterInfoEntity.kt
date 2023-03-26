@@ -16,7 +16,7 @@ data class CenterInfoEntity (
     val lng: String,
     val centerType: String,
 ) {
-    fun mappingCenterInfoEntityFromCenterItem(): CenterItem {
+    fun makeCenterItem(): CenterItem {
         return CenterItem(
             id = this.id,
             address = this.address,

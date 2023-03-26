@@ -6,7 +6,7 @@ data class CenterInfoPage(
     val page: Int,
     val data: List<CenterInfo>,
 ) {
-    fun mappingCenterInfoPageFromCenterItems(): List<CenterItem> {
+    fun makeCenterItems(): List<CenterItem> {
         return this.data.map {
             CenterItem(
                 id = it.id,

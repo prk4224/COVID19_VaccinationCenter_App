@@ -3,7 +3,7 @@ package com.jaehong.data.local.datasource
 import com.jaehong.data.local.database.VaccinationCenterDataBase
 import com.jaehong.data.local.entity.CenterInfoEntity
 import com.jaehong.data.local.network_manager.NetworkManager
-import com.jaehong.data.util.networkCallback
+import com.jaehong.data.util.networkConnectCallback
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -27,7 +27,7 @@ class LocalDataSourceImpl @Inject constructor(
 
     override suspend fun observeConnectivityAsFlow():Flow<Boolean> = callbackFlow {
         val connectivityManager = networkManager.getConnectivityManager()
-        val callback = networkCallback { result -> trySend(result) }
+        val callback = networkConnectCallback { result -> trySend(result) }
         val networkRequest = networkManager.getNetworkRequest()
 
         connectivityManager.registerNetworkCallback(networkRequest,callback)

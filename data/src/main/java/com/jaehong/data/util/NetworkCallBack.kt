@@ -3,7 +3,7 @@ package com.jaehong.data.util
 import android.net.ConnectivityManager
 import android.net.Network
 
-fun networkCallback(callback: (Boolean) -> Unit): ConnectivityManager.NetworkCallback {
+fun networkConnectCallback(callback: (Boolean) -> Unit): ConnectivityManager.NetworkCallback {
     return object : ConnectivityManager.NetworkCallback() {
         override fun onAvailable(network: Network) {
             callback(true)

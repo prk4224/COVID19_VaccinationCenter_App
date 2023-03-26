@@ -14,7 +14,7 @@ class LocalRepositoryImpl @Inject constructor(
 
     override suspend fun getCenterInfo(): Flow<List<CenterItem>> = flow {
         localDataSource.getCenterInfo().collect {
-            emit(it.map { item -> item.mappingCenterInfoEntityFromCenterItem() })
+            emit(it.map { item -> item.makeCenterItem() })
         }
     }
 

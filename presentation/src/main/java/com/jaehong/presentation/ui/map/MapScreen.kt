@@ -30,9 +30,7 @@ fun MapViewScreen(
     val permissionState = mapViewModel.permissionState.collectAsState().value
     val colorMap = mapViewModel.colorHashMap.collectAsState().value
 
-    val selectedItem = remember {
-        mutableStateOf<CenterItem?>(null)
-    }
+    val selectedItem = remember { mutableStateOf<CenterItem?>(null) }
 
     val cameraPositionState: CameraPositionState = rememberCameraPositionState {
         position = CameraPosition(LatLng(37.532600, 127.024612), 15.0)
@@ -43,7 +41,7 @@ fun MapViewScreen(
     }
 
     val mapProperties by remember {
-        mutableStateOf( MapProperties(maxZoom = 25.0, minZoom = 5.0,) )
+        mutableStateOf( MapProperties(maxZoom = 21.0, minZoom = 5.0,) )
     }
     val mapUiSettings by remember {
         mutableStateOf(
@@ -101,6 +99,7 @@ fun MapViewScreen(
                 mapViewModel.checkedRangeForMarker(center,rangeLocation,targetLocation)
             }
         )
+
         BottomSheetScreen(
             selectedItem = selectedItem.value,
             modifier = Modifier
@@ -108,7 +107,7 @@ fun MapViewScreen(
                 .align(Alignment.BottomCenter)
         )
 
-        CurrentPositionButton(
+        CurrentLocationButton(
             modifier = Modifier
                 .align(Alignment.TopEnd)
                 .padding(15.dp),

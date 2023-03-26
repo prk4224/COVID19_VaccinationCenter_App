@@ -19,12 +19,16 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlin.math.pow
 import kotlin.random.Random
 
 @HiltViewModel
 class MapViewModel @Inject constructor(
     private val mapUseCase: MapUseCase,
 ): ViewModel() {
+
+    private val TAG = "MapViewModel"
+
     private val _centerItems = MutableStateFlow(listOf<CenterItem>())
     val centerItems = _centerItems.asStateFlow()
 
@@ -42,7 +46,7 @@ class MapViewModel @Inject constructor(
         viewModelScope.launch {
             val scope = launch {
                 mapUseCase.getCenterInfo()
-                    .catch { Log.d("Get CenterInfo", "DB 저장 데이터 불러오기 실패") }
+                    .catch { Log.d(TAG, "Get CenterInfo: DB 저장 데이터 불러오기 실패") }
                     .collect { _centerItems.value = it }
             }
             scope.join()
@@ -63,7 +67,7 @@ class MapViewModel @Inject constructor(
                 val location = LatLng(it.latitude, it.longitude)
                 moveCamera(location)
             }.addOnFailureListener {
-                Log.d("Get Current Location", "현재위치 불러오기 실패")
+                Log.d(TAG, "Get Current Location: 현재위치 불러오기 실패")
             }
     }
 

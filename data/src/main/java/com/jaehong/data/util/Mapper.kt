@@ -10,7 +10,7 @@ object Mapper {
     fun ApiResult<CenterInfoPage>.dataFromDomain(): ApiResult<List<CenterItem>> {
         return when(this) {
             is ApiResult.Success -> {
-                ApiResult.Success(this.data.mappingCenterInfoPageFromCenterItems())
+                ApiResult.Success(this.data.makeCenterItems())
             }
             is ApiResult.Error -> {
                 ApiResult.Error(this.exception)

@@ -2,7 +2,6 @@ package com.jaehong.presentation.ui.map
 
 import android.graphics.PointF
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.Color
 import com.jaehong.domain.model.CenterItem
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.compose.*

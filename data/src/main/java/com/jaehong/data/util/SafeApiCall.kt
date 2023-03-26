@@ -17,6 +17,6 @@ suspend fun <T : Any> safeApiCall(call: suspend () -> Response<T>): ApiResult<T>
     return if (body != null) {
         ApiResult.Success(body)
     } else {
-        ApiResult.Error(IOException(""))
+        ApiResult.Error(IOException("Body Null Error"))
     }
 }
