@@ -59,7 +59,7 @@ client_id = "hx1egfkmv4"
 
 #### Loading 상태를 관리하는 Job 객체 정의
 ```kotlin
-  private lateinit var loading: Job
+  private lateinit var loadingScope: Job
 ```
 
 #### UI State 구현
@@ -72,7 +72,7 @@ client_id = "hx1egfkmv4"
 
 ```kotlin
   private fun increaseLoadingValue() {
-      loading = viewModelScope.launch {
+      loadingScope = viewModelScope.launch {
           delay(20)
           _loadingValue.value++
           _loadingWidth.value += 2
@@ -84,7 +84,7 @@ client_id = "hx1egfkmv4"
 ```kotlin
   fun startLoading() {
       // 데이터 불러오기
-      if (loadingValue.value == 0) {
+        if (loadingValue.value == 0) {
             for (idx in 1..10) {
                 getCenterItems(idx)
             }
@@ -94,12 +94,12 @@ client_id = "hx1egfkmv4"
 
         // 80% 에서 상태 체크 로딩이 완료되지 않았다면 증가 Scoope cancle
         if (loadingValue.value == 80 && uiState.value != UiState.SUCCESS) {
-            loading.cancel()
+            loadingScope.cancel()
         }
         
         // 100% 에 데이터 저장 성공 시 Scoope cancle 후 Map Page 로 이동
         if (loadingValue.value == 100 && uiState.value == UiState.SUCCESS) {
-            loading.cancel()
+            loadingScope.cancel()
             onNavigateToMapView()
         }
   }
@@ -126,7 +126,7 @@ client_id = "hx1egfkmv4"
         // Loading 상태를 성공으로 만든다
         updateUiState(UiState.SUCCESS)
         / 로딩 완료후 증가 Scoope 가 cancle 이면서 Loading Value 가 80% 라면 증가 Scoope를 다시 실행 시킨다.
-        if (loading.isCancelled && uiState.value != UiState.SUCCESS) {
+        if (loadingScope.isCancelled && uiState.value != UiState.SUCCESS) {
             increaseLoadingValue()
         }
   }
