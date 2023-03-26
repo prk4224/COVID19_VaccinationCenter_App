@@ -17,6 +17,7 @@ fun NaverMapScreen(
     onMapClick: (PointF, LatLng) -> Unit,
     initPosition: () -> Unit,
     marker: @Composable (CenterItem) -> Unit,
+    checkedRangeForMarker: (LatLng,LatLng?,LatLng) -> Boolean,
 ) {
     NaverMap(
         properties = mapProperties,
@@ -26,7 +27,13 @@ fun NaverMapScreen(
         onMapClick = { point, latLng -> onMapClick(point,latLng) }
     ) {
         centerItems.forEach {
-            marker(it)
+            if(checkedRangeForMarker(
+                    cameraPositionState.position.target,
+                    cameraPositionState.contentBounds?.northEast,
+                    LatLng(it.lat.toDouble(),it.lng.toDouble()))
+            ) {
+                marker(it)
+            }
         }
     }
 }

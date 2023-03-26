@@ -103,4 +103,27 @@ class MapViewModel @Inject constructor(
         val blue = Random.nextInt(256)
         return Color(red, green, blue)
     }
+
+    fun checkedRangeForMarker(
+        center: LatLng,
+        rangeLocation: LatLng?,
+        targetLocation: LatLng
+    ): Boolean {
+        val range = getDistance(center,rangeLocation?: return false)
+        val distance = getDistance(center,targetLocation)
+
+        return range > distance
+    }
+
+    private fun getDistance(center: LatLng, radius: LatLng): Double {
+        val earthRadius = 6372.8 * 1000
+        val diffLat = Math.toRadians(center.latitude - radius.latitude)
+        val diffLon = Math.toRadians(center.longitude - radius.longitude)
+        val a = kotlin.math.sin(diffLat / 2).pow(2.0)+
+                kotlin.math.sin(diffLon / 2).pow(2.0) *
+                kotlin.math.cos(Math.toRadians(radius.latitude)) *
+                kotlin.math.cos(Math.toRadians(center.latitude))
+        val c = 2 * kotlin.math.asin(kotlin.math.sqrt(a))
+        return earthRadius * c
+    }
 }

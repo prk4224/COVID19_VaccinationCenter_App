@@ -97,6 +97,9 @@ fun MapViewScreen(
                     moveCamera = { latLng -> moveCamera(latLng) },
                 )
             },
+            checkedRangeForMarker = { center, rangeLocation, targetLocation ->
+                mapViewModel.checkedRangeForMarker(center,rangeLocation,targetLocation)
+            }
         )
         BottomSheetScreen(
             selectedItem = selectedItem.value,
