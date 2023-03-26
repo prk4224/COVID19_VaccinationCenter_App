@@ -45,7 +45,7 @@ class MapViewModel @Inject constructor(
     private fun getCenterInfo() {
         viewModelScope.launch {
             val scope = launch {
-                mapUseCase.getCenterInfo()
+                mapUseCase()
                     .catch { Log.d(TAG, "Get CenterInfo: DB 저장 데이터 불러오기 실패") }
                     .collect { _centerItems.value = it }
             }
@@ -119,13 +119,13 @@ class MapViewModel @Inject constructor(
         return range > distance
     }
 
-    private fun getDistance(center: LatLng, radius: LatLng): Double {
+    private fun getDistance(center: LatLng, target: LatLng): Double {
         val earthRadius = 6372.8 * 1000
-        val diffLat = Math.toRadians(center.latitude - radius.latitude)
-        val diffLon = Math.toRadians(center.longitude - radius.longitude)
+        val diffLat = Math.toRadians(center.latitude - target.latitude)
+        val diffLon = Math.toRadians(center.longitude - target.longitude)
         val a = kotlin.math.sin(diffLat / 2).pow(2.0)+
                 kotlin.math.sin(diffLon / 2).pow(2.0) *
-                kotlin.math.cos(Math.toRadians(radius.latitude)) *
+                kotlin.math.cos(Math.toRadians(target.latitude)) *
                 kotlin.math.cos(Math.toRadians(center.latitude))
         val c = 2 * kotlin.math.asin(kotlin.math.sqrt(a))
         return earthRadius * c

@@ -29,7 +29,7 @@ fun HomeScreen(
     COVID19_VaccinationCenterAppTheme() {
         NavHost(
             navController = navController,
-            startDestination = Destination.MapView,
+            startDestination = Destination.Splash,
         ) {
             composable(Destination.Splash) {
                 SplashScreen()

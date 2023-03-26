@@ -8,5 +8,4 @@ interface NetworkManager {
     fun getConnectivityManager(): ConnectivityManager
 
     fun getNetworkRequest(): NetworkRequest
-
 }

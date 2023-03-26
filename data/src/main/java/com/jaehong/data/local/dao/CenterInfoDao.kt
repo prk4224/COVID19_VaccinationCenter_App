@@ -18,7 +18,7 @@ interface CenterInfoDao {
         centerItems.forEach {
             if(insertCenterInfo(it) > 0) result++
         }
-        return result == centerItems.size
+        return result == centerItems.size && centerItems.isNotEmpty()
     }
 
 }

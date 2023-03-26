@@ -10,7 +10,7 @@ import javax.inject.Inject
 class MapUseCase @Inject constructor(
     private val localRepository: LocalRepository,
 ) {
-    suspend fun getCenterInfo(): Flow<List<CenterItem>> = flow {
+    suspend operator fun invoke() : Flow<List<CenterItem>> = flow {
         localRepository.getCenterInfo().collect {
             emit(it)
         }
