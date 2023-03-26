@@ -41,6 +41,7 @@ client_id = "hx1egfkmv4"
 #### 클린아키텍쳐 적용
 <img width="956" alt="스크린샷 2023-02-07 오후 7 32 35" src="https://user-images.githubusercontent.com/83493143/227753590-fba5f914-fb59-4ba6-a890-51682fd1ed29.png">
 
+---
 
 ## 💡 고민 사항
 
@@ -125,6 +126,7 @@ client_id = "hx1egfkmv4"
       }
   }
 ```
+---
 
 ### 📌 Network 상태 체크
 
@@ -216,3 +218,62 @@ fun networkConnectCallback(callback: (Boolean) -> Unit): ConnectivityManager.Net
         splashViewModel.initLoadingValue()
     } 
 ```
+
+---
+
+### 📌 지도에 Marker 가 표시되는 시점
+: 지도가 로딩 될때 모든 마커가 표시 되므로 비효율적이라 판단.
+
+#### ❗️ 해결 방법
+<img width="855" alt="스크린샷 2023-03-26 오후 1 28 31" src="https://user-images.githubusercontent.com/83493143/227755353-2eca3cc7-09b5-4648-981d-c6b6cd3c5551.png">
+
+#### 거리 계산 함수
+```kotlin
+    private fun getDistance(center: LatLng, target: LatLng): Double {
+        val earthRadius = 6372.8 * 1000
+        val diffLat = Math.toRadians(center.latitude - target.latitude)
+        val diffLon = Math.toRadians(center.longitude - target.longitude)
+        val a = kotlin.math.sin(diffLat / 2).pow(2.0)+
+                kotlin.math.sin(diffLon / 2).pow(2.0) *
+                kotlin.math.cos(Math.toRadians(target.latitude)) *
+                kotlin.math.cos(Math.toRadians(center.latitude))
+        val c = 2 * kotlin.math.asin(kotlin.math.sqrt(a))
+        return earthRadius * c
+    }
+```
+
+#### 범위 체크 함수
+```kotlin
+    fun checkedRangeForMarker(
+        center: LatLng,
+        rangeLocation: LatLng?,
+        targetLocation: LatLng
+    ): Boolean {
+        val range = getDistance(center,rangeLocation?: return false)
+        val distance = getDistance(center,targetLocation)
+
+        return range > distance
+    }
+```
+
+#### Naver Map 에서 구현 내용
+```kotlin
+NaverMap(
+    properties = mapProperties,
+    uiSettings = mapUiSettings,
+    cameraPositionState = cameraPositionState,
+    onMapLoaded = { initPosition() },
+    onMapClick = { point, latLng -> onMapClick(point,latLng) }
+) {
+    centerItems.forEach {
+        if(checkedRangeForMarker(
+                cameraPositionState.position.target, // 지도의 중앙 위치 좌표
+                cameraPositionState.contentBounds?.northEast, // 지도의 북동쪽 위치 좌표
+                LatLng(it.lat.toDouble(),it.lng.toDouble())) // 마커 좌표 
+        ) {
+            marker(it)
+        }
+    }
+}
+```
+
