@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.jaehong.domain.model.CenterItem
+import com.jaehong.domain.model.UiState
 import com.jaehong.domain.model.result.ApiResult
 import com.jaehong.domain.usecase.SplashUseCase
 import com.jaehong.presentation.ui.navigation.Destination
@@ -26,11 +27,11 @@ class SplashViewModel @Inject constructor(
 
     private val TAG = "SplashViewModel"
 
-    private val _centerInfoState = MutableStateFlow(false)
-    val centerInfoState = _centerInfoState.asStateFlow()
+    private val _uiState = MutableStateFlow(UiState.EMPTY)
+    val uiState = _uiState.asStateFlow()
 
-    private val _animationState = MutableStateFlow(0)
-    val animationState = _animationState.asStateFlow()
+    private val _loadingWidth = MutableStateFlow(0)
+    val loadingWidth = _loadingWidth.asStateFlow()
 
     private val _loadingValue = MutableStateFlow(0)
     val loadingValue = _loadingValue.asStateFlow()
@@ -45,17 +46,19 @@ class SplashViewModel @Inject constructor(
     }
 
     fun startLoading() {
-        for (idx in 1..10) {
-            getCenterItems(idx)
+        if(loadingValue.value == 0) {
+            for (idx in 1..10) {
+                getCenterItems(idx)
+            }
         }
 
         increaseLoadingValue()
 
-        if (loadingValue.value == 80 && centerInfoState.value.not()) {
+        if (loadingValue.value == 80 && uiState.value != UiState.SUCCESS) {
             loading.cancel()
         }
 
-        if (loadingValue.value == 100) {
+        if (loadingValue.value == 100 && uiState.value == UiState.SUCCESS) {
             loading.cancel()
             onNavigateToMapView()
         }
@@ -65,7 +68,7 @@ class SplashViewModel @Inject constructor(
         loading = viewModelScope.launch {
             delay(20)
             _loadingValue.value++
-            _animationState.value += 2
+            _loadingWidth.value += 2
         }
     }
 
@@ -102,8 +105,8 @@ class SplashViewModel @Inject constructor(
     }
 
     private fun checkedLoadingValue() {
-        _centerInfoState.value = true
-        if (loading.isCancelled && loadingValue.value == 80) {
+        updateUiState(UiState.SUCCESS)
+        if (loading.isCancelled && uiState.value != UiState.SUCCESS) {
             increaseLoadingValue()
         }
     }
@@ -121,12 +124,21 @@ class SplashViewModel @Inject constructor(
                 .catch { Log.d("Get Gudie Key Error", "result: ${it.message}") }
                 .collect {
                     _networkConnectState.value = it
+                    if(it.not() && uiState.value != UiState.SUCCESS) {
+                        updateUiState(UiState.ERROR)
+                    } else {
+                        updateUiState(UiState.LOADING)
+                    }
                 }
         }
     }
 
+    fun updateUiState(state: UiState) {
+        _uiState.value = state
+    }
+
     fun initLoadingValue() {
-        _animationState.value = 0
+        _loadingWidth.value = 0
         _loadingValue.value = 0
     }
 }
