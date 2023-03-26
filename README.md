@@ -59,77 +59,77 @@ client_id = "hx1egfkmv4"
 
 #### Loading 상태를 관리하는 Job 객체 정의
 ```kotlin
-  private lateinit var loadingScope: Job
+private lateinit var loadingScope: Job
 ```
 
 #### UI State 구현
 ```kotlin
-    private val _uiState = MutableStateFlow(UiState.EMPTY)
-    val uiState = _uiState.asStateFlow()
+private val _uiState = MutableStateFlow(UiState.EMPTY)
+val uiState = _uiState.asStateFlow()
 ```
 
 #### ❗️ 2초에 100% 로딩 → 0.02초당 1% 로딩
 
 ```kotlin
-  private fun increaseLoadingValue() {
-      loadingScope = viewModelScope.launch {
-          delay(20)
-          _loadingValue.value++
-          _loadingWidth.value += 2
-      }
-  }
+private fun increaseLoadingValue() {
+    loadingScope = viewModelScope.launch {
+        delay(20)
+        _loadingValue.value++
+        _loadingWidth.value += 2
+    }
+}
 ```
 
 #### 로딩 시작 함수 구현
 ```kotlin
-  fun startLoading() {
+fun startLoading() {
       // 데이터 불러오기
-        if (loadingValue.value == 0) {
-            for (idx in 1..10) {
-                getCenterItems(idx)
-            }
-        }
-        // 증가 Scope 실행
-        increaseLoadingValue()
+      if (loadingValue.value == 0) {
+          for (idx in 1..10) {
+              getCenterItems(idx)
+          }
+      }
+      // 증가 Scope 실행
+      increaseLoadingValue()
 
-        // 80% 에서 상태 체크 로딩이 완료되지 않았다면 증가 Scoope cancle
-        if (loadingValue.value == 80 && uiState.value != UiState.SUCCESS) {
-            loadingScope.cancel()
-        }
-        
-        // 100% 에 데이터 저장 성공 시 Scoope cancle 후 Map Page 로 이동
-        if (loadingValue.value == 100 && uiState.value == UiState.SUCCESS) {
-            loadingScope.cancel()
-            onNavigateToMapView()
-        }
-  }
+      // 80% 에서 상태 체크 로딩이 완료되지 않았다면 증가 Scoope cancle
+      if (loadingValue.value == 80 && uiState.value != UiState.SUCCESS) {
+          loadingScope.cancel()
+      }
+
+      // 100% 에 데이터 저장 성공 시 Scoope cancle 후 Map Page 로 이동
+      if (loadingValue.value == 100 && uiState.value == UiState.SUCCESS) {
+          loadingScope.cancel()
+          onNavigateToMapView()
+      }
+}
 ```
 
 #### 저장 완료 시 Loading 상태 체크
 ```kotlin
-  private fun insertCenterItems(items: List<CenterItem>, page: Int) {
-      viewModelScope.launch {
-          splashUseCase.insertCenterItems(items)
-              .catch { Log.d(TAG, "Insert Center Items: ${it.message}") }
-              .collect {
-                    // 마지막 페이지면 Loading 상태 체크 호출
-                   if (it && page == 10) {
-                        checkedLoadingValue()
-                    }
-                    if (it.not()) {
-                        Log.d(TAG, "Insert Center Items: No.$page Insert Failure")
-                    }
-              }
+private fun insertCenterItems(items: List<CenterItem>, page: Int) {
+    viewModelScope.launch {
+        splashUseCase.insertCenterItems(items)
+            .catch { Log.d(TAG, "Insert Center Items: ${it.message}") }
+            .collect {
+                  // 마지막 페이지면 Loading 상태 체크 호출
+                 if (it && page == 10) {
+                      checkedLoadingValue()
+                  }
+                  if (it.not()) {
+                      Log.d(TAG, "Insert Center Items: No.$page Insert Failure")
+                  }
+            }
+    }
+}
+private fun checkedLoadingValue() {
+      // Loading 상태를 성공으로 만든다
+      updateUiState(UiState.SUCCESS)
+      / 로딩 완료후 증가 Scoope 가 cancle 이면서 Loading Value 가 80% 라면 증가 Scoope를 다시 실행 시킨다.
+      if (loadingScope.isCancelled && uiState.value != UiState.SUCCESS) {
+          increaseLoadingValue()
       }
-  }
-  private fun checkedLoadingValue() {
-        // Loading 상태를 성공으로 만든다
-        updateUiState(UiState.SUCCESS)
-        / 로딩 완료후 증가 Scoope 가 cancle 이면서 Loading Value 가 80% 라면 증가 Scoope를 다시 실행 시킨다.
-        if (loadingScope.isCancelled && uiState.value != UiState.SUCCESS) {
-            increaseLoadingValue()
-        }
-  }
+}
 ```
 ---
 
@@ -191,38 +191,38 @@ fun networkConnectCallback(callback: (Boolean) -> Unit): ConnectivityManager.Net
 
 #### Network 상태 ovserve 함수 구현
 ```kotlin
-    override suspend fun observeConnectivityAsFlow():Flow<Boolean> = callbackFlow {
-        val connectivityManager = networkManager.getConnectivityManager()
-        val callback = networkConnectCallback { result -> trySend(result) }
-        val networkRequest = networkManager.getNetworkRequest()
+override suspend fun observeConnectivityAsFlow():Flow<Boolean> = callbackFlow {
+    val connectivityManager = networkManager.getConnectivityManager()
+    val callback = networkConnectCallback { result -> trySend(result) }
+    val networkRequest = networkManager.getNetworkRequest()
 
-        connectivityManager.registerNetworkCallback(networkRequest,callback)
+    connectivityManager.registerNetworkCallback(networkRequest,callback)
 
-        awaitClose {
-            connectivityManager.unregisterNetworkCallback(callback)
-        }
+    awaitClose {
+        connectivityManager.unregisterNetworkCallback(callback)
     }
+}
 ```
 
 #### Network State 구현
 ```kotlin
-    private val _networkConnectState = MutableStateFlow(false)
-    val networkConnectState = _networkConnectState.asStateFlow()
+private val _networkConnectState = MutableStateFlow(false)
+val networkConnectState = _networkConnectState.asStateFlow()
 ```
 
 #### Network 가 연결 되어있지 않을 때 연결 UI 표출
 ```kotlin
-    // NetWork 가 연결되어 있지 않고 로딩도 완료되지 않았다면 연결 요청 UI 표출
-    if(networkConnectState.not() && loadingState.not()) {
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
-        ){
-            Text(text = "네트워크를 연결해 주세요 !", color = Color.Red, fontSize = 20.sp)
-        }
-        // 로딩이 된 후에 네트워크가 끊겼을 경우 다시 처름부터 loading 되기 때문에 Loding Value 값을 초기화 한다.
-        splashViewModel.initLoadingValue()
-    } 
+// NetWork 가 연결되어 있지 않고 로딩도 완료되지 않았다면 연결 요청 UI 표출
+if(networkConnectState.not() && loadingState.not()) {
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ){
+        Text(text = "네트워크를 연결해 주세요 !", color = Color.Red, fontSize = 20.sp)
+    }
+    // 로딩이 된 후에 네트워크가 끊겼을 경우 다시 처름부터 loading 되기 때문에 Loding Value 값을 초기화 한다.
+    splashViewModel.initLoadingValue()
+} 
 ```
 
 ---
@@ -235,31 +235,31 @@ fun networkConnectCallback(callback: (Boolean) -> Unit): ConnectivityManager.Net
 
 #### 거리 계산 함수
 ```kotlin
-    private fun getDistance(center: LatLng, target: LatLng): Double {
-        val earthRadius = 6372.8 * 1000
-        val diffLat = Math.toRadians(center.latitude - target.latitude)
-        val diffLon = Math.toRadians(center.longitude - target.longitude)
-        val a = kotlin.math.sin(diffLat / 2).pow(2.0)+
-                kotlin.math.sin(diffLon / 2).pow(2.0) *
-                kotlin.math.cos(Math.toRadians(target.latitude)) *
-                kotlin.math.cos(Math.toRadians(center.latitude))
-        val c = 2 * kotlin.math.asin(kotlin.math.sqrt(a))
-        return earthRadius * c
-    }
+private fun getDistance(center: LatLng, target: LatLng): Double {
+    val earthRadius = 6372.8 * 1000
+    val diffLat = Math.toRadians(center.latitude - target.latitude)
+    val diffLon = Math.toRadians(center.longitude - target.longitude)
+    val a = kotlin.math.sin(diffLat / 2).pow(2.0)+
+            kotlin.math.sin(diffLon / 2).pow(2.0) *
+            kotlin.math.cos(Math.toRadians(target.latitude)) *
+            kotlin.math.cos(Math.toRadians(center.latitude))
+    val c = 2 * kotlin.math.asin(kotlin.math.sqrt(a))
+    return earthRadius * c
+}
 ```
 
 #### 범위 체크 함수
 ```kotlin
-    fun checkedRangeForMarker(
-        center: LatLng,
-        rangeLocation: LatLng?,
-        targetLocation: LatLng
-    ): Boolean {
-        val range = getDistance(center,rangeLocation?: return false)
-        val distance = getDistance(center,targetLocation)
+fun checkedRangeForMarker(
+    center: LatLng,
+    rangeLocation: LatLng?,
+    targetLocation: LatLng
+): Boolean {
+    val range = getDistance(center,rangeLocation?: return false)
+    val distance = getDistance(center,targetLocation)
 
-        return range > distance
-    }
+    return range > distance
+}
 ```
 
 #### Naver Map 에서 구현 내용
