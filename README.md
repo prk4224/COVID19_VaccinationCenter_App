@@ -125,7 +125,7 @@ private fun insertCenterItems(items: List<CenterItem>, page: Int) {
 private fun checkedLoadingValue() {
       // Loading 상태를 성공으로 만든다
       updateUiState(UiState.SUCCESS)
-      / 로딩 완료후 증가 Scoope 가 cancle 이면서 Loading Value 가 80% 라면 증가 Scoope를 다시 실행 시킨다.
+      // 로딩 완료후 증가 Scoope 가 cancle 이면서 Loading Value 가 80% 라면 증가 Scoope를 다시 실행 시킨다.
       if (loadingScope.isCancelled && uiState.value != UiState.SUCCESS) {
           increaseLoadingValue()
       }
