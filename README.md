@@ -129,6 +129,7 @@ client_id = "hx1egfkmv4"
 ---
 
 ### 📌 Network 상태 체크
+: Network 가 연결되어 있지 않다면 Loading 80% 에서 움직이지 않는 문제
 
 #### Network Manager Data Module 구현
 ```kotlin
@@ -225,7 +226,7 @@ fun networkConnectCallback(callback: (Boolean) -> Unit): ConnectivityManager.Net
 : 지도가 로딩 될때 모든 마커가 표시 되므로 비효율적이라 판단.
 
 #### ❗️ 해결 방법
-<img width="855" alt="스크린샷 2023-03-26 오후 1 28 31" src="https://user-images.githubusercontent.com/83493143/227755353-2eca3cc7-09b5-4648-981d-c6b6cd3c5551.png">
+<img width="855" alt="스크린샷 2023-03-26 오후 1 37 05" src="https://user-images.githubusercontent.com/83493143/227755563-0550e498-033b-4586-9e95-bce4306305a1.png">
 
 #### 거리 계산 함수
 ```kotlin
