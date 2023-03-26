@@ -62,13 +62,10 @@ client_id = "hx1egfkmv4"
   private lateinit var loading: Job
 ```
 
-#### Loading 에 사용할 데이터 구현
+#### UI State 구현
 ```kotlin
-  private val _loadingWidth = MutableStateFlow(0)
-  val loadingWidth = _loadingWidth.asStateFlow()
-
-  private val _loadingValue = MutableStateFlow(0)
-  val loadingValue = _loadingValue.asStateFlow()
+    private val _uiState = MutableStateFlow(UiState.EMPTY)
+    val uiState = _uiState.asStateFlow()
 ```
 
 #### ❗️ 2초에 100% 로딩 → 0.02초당 1% 로딩
@@ -87,22 +84,24 @@ client_id = "hx1egfkmv4"
 ```kotlin
   fun startLoading() {
       // 데이터 불러오기
-      for (idx in 1..10) {
-          getCenterItems(idx)
-      }
-      // 증가 Scope 실행
-      increaseLoadingValue()
-      
-      // 80% 에서 상태 체크 로딩이 완료되지 않았다면 증가 Scoope cancle
-      if (loadingValue.value == 80 && centerInfoState.value.not()) {
-          loading.cancel()
-      }
-      
-      // 100% 라면 Scoope cancle 후 Map Page 로 이동
-      if (loadingValue.value == 100) {
-          loading.cancel()
-          onNavigateToMapView()
-      }
+      if (loadingValue.value == 0) {
+            for (idx in 1..10) {
+                getCenterItems(idx)
+            }
+        }
+        // 증가 Scope 실행
+        increaseLoadingValue()
+
+        // 80% 에서 상태 체크 로딩이 완료되지 않았다면 증가 Scoope cancle
+        if (loadingValue.value == 80 && uiState.value != UiState.SUCCESS) {
+            loading.cancel()
+        }
+        
+        // 100% 에 데이터 저장 성공 시 Scoope cancle 후 Map Page 로 이동
+        if (loadingValue.value == 100 && uiState.value == UiState.SUCCESS) {
+            loading.cancel()
+            onNavigateToMapView()
+        }
   }
 ```
 
@@ -113,23 +112,23 @@ client_id = "hx1egfkmv4"
           splashUseCase.insertCenterItems(items)
               .catch { Log.d(TAG, "Insert Center Items: ${it.message}") }
               .collect {
-                  // 마지막 페이지면 Loading 상태 체크 호출
-                  if (page == 10) {                
-                      checkedLoadingValue()
-                  }
-                  if (it.not()) {
-                      Log.d(TAG, "Insert Center Items: No.$page Insert Failure")
-                  }
+                    // 마지막 페이지면 Loading 상태 체크 호출
+                   if (it && page == 10) {
+                        checkedLoadingValue()
+                    }
+                    if (it.not()) {
+                        Log.d(TAG, "Insert Center Items: No.$page Insert Failure")
+                    }
               }
       }
   }
   private fun checkedLoadingValue() {
-      // Loading 상태를 true 로 만든다
-      _centerInfoState.value = true
-      // 로딩 완료후 증가 Scoope 가 cancle 이면서 Loading Value 가 80% 라면 증가 Scoope를 다시 실행 시킨다.
-      if (loading.isCancelled && loadingValue.value == 80) {
-          increaseLoadingValue()
-      }
+        // Loading 상태를 성공으로 만든다
+        updateUiState(UiState.SUCCESS)
+        / 로딩 완료후 증가 Scoope 가 cancle 이면서 Loading Value 가 80% 라면 증가 Scoope를 다시 실행 시킨다.
+        if (loading.isCancelled && uiState.value != UiState.SUCCESS) {
+            increaseLoadingValue()
+        }
   }
 ```
 ---
