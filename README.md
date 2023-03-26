@@ -42,9 +42,9 @@ client_id = "hx1egfkmv4"
 <img width="956" alt="스크린샷 2023-02-07 오후 7 32 35" src="https://user-images.githubusercontent.com/83493143/227753590-fba5f914-fb59-4ba6-a890-51682fd1ed29.png">
 
 
-## 고민 사항
+## 💡 고민 사항
 
-### 로딩 바
+### 📌 로딩 바
 
 #### 요구 사항
 - 2초에 걸쳐 100%가 되도록 로딩바 구현 
@@ -124,4 +124,95 @@ client_id = "hx1egfkmv4"
           increaseLoadingValue()
       }
   }
+```
+
+### 📌 Network 상태 체크
+
+#### Network Manager Data Module 구현
+```kotlin
+interface NetworkManager {
+
+    fun getConnectivityManager(): ConnectivityManager
+
+    fun getNetworkRequest(): NetworkRequest
+}
+```
+
+####  Network Manager 정의 후 App Module 에서 의존성 주입
+
+```kotlin
+class NetworkManagerImpl(private val context: Context): NetworkManager {
+    override fun getConnectivityManager(): ConnectivityManager {
+        return context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+    }
+    override fun getNetworkRequest(): NetworkRequest {
+        return NetworkRequest.Builder()
+            .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+            .build()
+    }
+}
+```
+
+```kotlin
+@Module
+@InstallIn(SingletonComponent::class)
+class NetworkManagerModule {
+
+    @Singleton
+    @Provides
+    fun provideNetworkManager(
+        @ApplicationContext context: Context
+    ): NetworkManager = NetworkManagerImpl(context)
+}
+```
+
+#### NetworkConnect CallBak 함수 구현 (연결 되어 있으면 true, 아니면 false)
+```kotlin
+fun networkConnectCallback(callback: (Boolean) -> Unit): ConnectivityManager.NetworkCallback {
+    return object : ConnectivityManager.NetworkCallback() {
+        override fun onAvailable(network: Network) {
+            callback(true)
+        }
+
+        override fun onLost(network: Network) {
+            callback(false)
+        }
+    }
+}
+```
+
+#### Network 상태 ovserve 함수 구현
+```kotlin
+    override suspend fun observeConnectivityAsFlow():Flow<Boolean> = callbackFlow {
+        val connectivityManager = networkManager.getConnectivityManager()
+        val callback = networkConnectCallback { result -> trySend(result) }
+        val networkRequest = networkManager.getNetworkRequest()
+
+        connectivityManager.registerNetworkCallback(networkRequest,callback)
+
+        awaitClose {
+            connectivityManager.unregisterNetworkCallback(callback)
+        }
+    }
+```
+
+#### Network State 구현
+```kotlin
+    private val _networkConnectState = MutableStateFlow(false)
+    val networkConnectState = _networkConnectState.asStateFlow()
+```
+
+#### Network 가 연결 되어있지 않을 때 연결 UI 표출
+```kotlin
+    // NetWork 가 연결되어 있지 않고 로딩도 완료되지 않았다면 연결 요청 UI 표출
+    if(networkConnectState.not() && loadingState.not()) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ){
+            Text(text = "네트워크를 연결해 주세요 !", color = Color.Red, fontSize = 20.sp)
+        }
+        // 로딩이 된 후에 네트워크가 끊겼을 경우 다시 처름부터 loading 되기 때문에 Loding Value 값을 초기화 한다.
+        splashViewModel.initLoadingValue()
+    } 
 ```
