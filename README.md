@@ -15,7 +15,13 @@ client_id = "hx1egfkmv4"
 ---
 
 ## 구현 모습
+|<img src="https://user-images.githubusercontent.com/83493143/227767768-96117326-8494-404b-8208-38df7ffde07d.gif" width="250" />|<img src="https://user-images.githubusercontent.com/83493143/227767778-a40efa90-f5dd-4bb0-8851-5c0555b5bc81.gif" width="250"/>|<img src="https://user-images.githubusercontent.com/83493143/227767793-2bc121de-b2ac-44b5-85f4-768007184c70.gif" width="250" />|
+|:--:|:--:|:--:|
+|정상 Splash Screen|네트워크 연결 X Splash Screen|네크워크 느린 Splash Screen|
 
+|<img src="https://user-images.githubusercontent.com/83493143/227767808-df33f0ba-58d8-4e93-b516-8d65dbebf95c.gif" width="250" />|<img src="https://user-images.githubusercontent.com/83493143/227767515-780a312c-0443-46ea-a9d5-320fcaa62902.gif" width="250"/>|<img src="https://user-images.githubusercontent.com/83493143/227767567-61ed0f80-0b84-4064-90ce-b3451dff52a6.gif" width="250" />|
+|:--:|:--:|:--:|
+|위치 권한이 없을 때 초기 화면|위치 권한 없을 때 현재 위치 버튼 클릭|마커 이벤트|
 
 ---
 
