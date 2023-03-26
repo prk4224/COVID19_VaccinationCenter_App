@@ -46,7 +46,7 @@ class SplashViewModel @Inject constructor(
     }
 
     fun startLoading() {
-        if(loadingValue.value == 0) {
+        if (loadingValue.value == 0) {
             for (idx in 1..10) {
                 getCenterItems(idx)
             }
@@ -112,8 +112,8 @@ class SplashViewModel @Inject constructor(
     }
 
     private fun onNavigateToMapView() {
-       viewModelScope.launch {
-           vaccinationAppNavigator.navigateBack()
+        viewModelScope.launch {
+            vaccinationAppNavigator.navigateBack()
             vaccinationAppNavigator.navigateTo(Destination.MapView())
         }
     }
@@ -124,7 +124,7 @@ class SplashViewModel @Inject constructor(
                 .catch { Log.d("Get Gudie Key Error", "result: ${it.message}") }
                 .collect {
                     _networkConnectState.value = it
-                    if(it.not() && uiState.value != UiState.SUCCESS) {
+                    if (it.not() && uiState.value != UiState.SUCCESS) {
                         updateUiState(UiState.ERROR)
                     } else {
                         updateUiState(UiState.LOADING)

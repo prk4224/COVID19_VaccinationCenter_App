@@ -21,8 +21,9 @@ fun LoadingScreen(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center,
     ) {
+
         Text(
-            text = "$loadingValue %",
+            text = if(loadingValue > 100) "100 %" else "$loadingValue %",
             fontSize = 20.sp,
             modifier = Modifier
                 .padding(bottom = 50.dp)
@@ -31,7 +32,7 @@ fun LoadingScreen(
         Box(
             modifier = Modifier
                 .background(Color.LightGray, RoundedCornerShape(10.dp))
-                .width(loadingWidth.dp)
+                .width(if(loadingWidth > 200) 200.dp else loadingWidth.dp)
                 .height(20.dp)
                 .align(Alignment.Center),
         )
