@@ -399,7 +399,7 @@ fun checkNetworkConnectError() = runTest {
 ### 데이터 저장 실패 Test
 ```kotlin
 @Test
-@DisplayName("네트워크 데이터 저장이 완료되지 않았을 경우 : UiState: Loading")
+@DisplayName("네트워크 데이터 저장이 완료되지 않았을 경우 : when 실행후에 UI State -> Loading")
 fun checkNetworkConnectSlow() = runTest {
     // given
     coEvery {
