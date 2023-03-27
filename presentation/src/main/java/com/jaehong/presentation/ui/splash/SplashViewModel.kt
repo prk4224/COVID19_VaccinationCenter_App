@@ -39,33 +39,36 @@ class SplashViewModel @Inject constructor(
     private val _networkConnectState = MutableStateFlow(false)
     val networkConnectState = _networkConnectState.asStateFlow()
 
-    private lateinit var loading: Job
+    private lateinit var loadingScope: Job
 
     init {
         observeNetworkState()
     }
 
     fun startLoading() {
+
+        if (loadingValue.value == 80 && uiState.value != UiState.SUCCESS) {
+            loadingScope.cancel()
+        }
+
+        if (loadingValue.value == 100 && uiState.value == UiState.SUCCESS) {
+            loadingScope.cancel()
+            onNavigateToMapView()
+        }
+
+        if(loadingValue.value < 100) {
+            increaseLoadingValue()
+        }
+
         if (loadingValue.value == 0) {
             for (idx in 1..10) {
                 getCenterItems(idx)
             }
         }
-
-        increaseLoadingValue()
-
-        if (loadingValue.value == 80 && uiState.value != UiState.SUCCESS) {
-            loading.cancel()
-        }
-
-        if (loadingValue.value == 100 && uiState.value == UiState.SUCCESS) {
-            loading.cancel()
-            onNavigateToMapView()
-        }
     }
 
     private fun increaseLoadingValue() {
-        loading = viewModelScope.launch {
+        loadingScope = viewModelScope.launch {
             delay(20)
             _loadingValue.value++
             _loadingWidth.value += 2
@@ -95,7 +98,7 @@ class SplashViewModel @Inject constructor(
                 .catch { Log.d(TAG, "Insert Center Items: ${it.message}") }
                 .collect {
                     if (it && page == 10) {
-                        checkedLoadingValue()
+                        completedLoadingValue()
                     }
                     if (it.not()) {
                         Log.d(TAG, "Insert Center Items: No.$page Insert Failure")
@@ -104,9 +107,9 @@ class SplashViewModel @Inject constructor(
         }
     }
 
-    private fun checkedLoadingValue() {
+    private fun completedLoadingValue() {
         updateUiState(UiState.SUCCESS)
-        if (loading.isCancelled && uiState.value != UiState.SUCCESS) {
+        if (loadingScope.isCancelled && uiState.value != UiState.SUCCESS) {
             increaseLoadingValue()
         }
     }
