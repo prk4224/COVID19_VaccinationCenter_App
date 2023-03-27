@@ -174,7 +174,7 @@ private fun insertCenterItems(items: List<CenterItem>, page: Int) {
             .collect {
                   // 마지막 페이지면 Loading 상태 체크 호출
                  if (it && page == 10) {
-                      completedLoadingValue()
+                      completeInsertCenterItems()
                   }
                   if (it.not()) {
                       Log.d(TAG, "Insert Center Items: No.$page Insert Failure")
@@ -182,7 +182,7 @@ private fun insertCenterItems(items: List<CenterItem>, page: Int) {
             }
     }
 }
-private fun completedLoadingValue() {
+private fun completeInsertCenterItems() {
       // Loading 상태를 성공으로 만든다
       updateUiState(UiState.SUCCESS)
       // 로딩 완료후 증가 Scoope 가 cancle 이면서 Loading Value 가 80% 라면 증가 Scoope를 다시 실행 시킨다.
