@@ -51,6 +51,63 @@ client_id = "hx1egfkmv4"
 ---
 
 ## 💡 고민 사항
+### 📌 지도에 Marker 가 표시되는 시점
+: 지도가 로딩 될때 모든 마커가 표시 되므로 비효율적이라 판단.
+
+#### ❗️ 해결 방법
+<img width="855" alt="스크린샷 2023-03-26 오후 1 37 05" src="https://user-images.githubusercontent.com/83493143/227755563-0550e498-033b-4586-9e95-bce4306305a1.png">
+
+#### 거리 계산 함수
+```kotlin
+private fun getDistance(center: LatLng, target: LatLng): Double {
+    val earthRadius = 6372.8 * 1000
+    val diffLat = Math.toRadians(center.latitude - target.latitude)
+    val diffLon = Math.toRadians(center.longitude - target.longitude)
+    val a = kotlin.math.sin(diffLat / 2).pow(2.0)+
+            kotlin.math.sin(diffLon / 2).pow(2.0) *
+            kotlin.math.cos(Math.toRadians(target.latitude)) *
+            kotlin.math.cos(Math.toRadians(center.latitude))
+    val c = 2 * kotlin.math.asin(kotlin.math.sqrt(a))
+    return earthRadius * c
+}
+```
+
+#### 범위 체크 함수
+```kotlin
+fun checkedRangeForMarker(
+    center: LatLng,
+    rangeLocation: LatLng?,
+    targetLocation: LatLng
+): Boolean {
+    val range = getDistance(center,rangeLocation?: return false)
+    val distance = getDistance(center,targetLocation)
+
+    return range > distance
+}
+```
+
+#### Naver Map 에서 구현 내용
+```kotlin
+NaverMap(
+    properties = mapProperties,
+    uiSettings = mapUiSettings,
+    cameraPositionState = cameraPositionState,
+    onMapLoaded = { initPosition() },
+    onMapClick = { point, latLng -> onMapClick(point,latLng) }
+) {
+    centerItems.forEach {
+        if(checkedRangeForMarker(
+                cameraPositionState.position.target, // 지도의 중앙 위치 좌표
+                cameraPositionState.contentBounds?.northEast, // 지도의 북동쪽 위치 좌표
+                LatLng(it.lat.toDouble(),it.lng.toDouble())) // 마커 좌표 
+        ) {
+            marker(it)
+        }
+    }
+}
+```
+
+---
 
 ### 📌 로딩 바
 
@@ -84,25 +141,27 @@ private fun increaseLoadingValue() {
 #### 로딩 시작 함수 구현
 ```kotlin
 fun startLoading() {
-      // 데이터 불러오기
-      if (loadingValue.value == 0) {
-          for (idx in 1..10) {
-              getCenterItems(idx)
-          }
-      }
-      // 증가 Scope 실행
-      increaseLoadingValue()
+    // 80% 에서 상태 체크 로딩이 완료되지 않았다면 증가 Scoope cancle
+    if (loadingValue.value == 80 && uiState.value != UiState.SUCCESS) {
+        loadingScope.cancel()
+    }
+    // 100% 에 데이터 저장 성공 시 Scoope cancle 후 Map Page 로 이동
+    if (loadingValue.value == 100 && uiState.value == UiState.SUCCESS) {
+        loadingScope.cancel()
+        onNavigateToMapView()
+    }
 
-      // 80% 에서 상태 체크 로딩이 완료되지 않았다면 증가 Scoope cancle
-      if (loadingValue.value == 80 && uiState.value != UiState.SUCCESS) {
-          loadingScope.cancel()
-      }
+    // 증가 Scope 실행
+    if(loadingValue.value < 100) {
+        increaseLoadingValue()
+    }
 
-      // 100% 에 데이터 저장 성공 시 Scoope cancle 후 Map Page 로 이동
-      if (loadingValue.value == 100 && uiState.value == UiState.SUCCESS) {
-          loadingScope.cancel()
-          onNavigateToMapView()
-      }
+    // 데이터 불러오기
+    if (loadingValue.value == 0) {
+        for (idx in 1..10) {
+            getCenterItems(idx)
+        }
+    }
 }
 ```
 
@@ -115,7 +174,7 @@ private fun insertCenterItems(items: List<CenterItem>, page: Int) {
             .collect {
                   // 마지막 페이지면 Loading 상태 체크 호출
                  if (it && page == 10) {
-                      checkedLoadingValue()
+                      completedLoadingValue()
                   }
                   if (it.not()) {
                       Log.d(TAG, "Insert Center Items: No.$page Insert Failure")
@@ -123,7 +182,7 @@ private fun insertCenterItems(items: List<CenterItem>, page: Int) {
             }
     }
 }
-private fun checkedLoadingValue() {
+private fun completedLoadingValue() {
       // Loading 상태를 성공으로 만든다
       updateUiState(UiState.SUCCESS)
       // 로딩 완료후 증가 Scoope 가 cancle 이면서 Loading Value 가 80% 라면 증가 Scoope를 다시 실행 시킨다.
@@ -224,64 +283,6 @@ if(networkConnectState.not() && loadingState.not()) {
     // 로딩이 된 후에 네트워크가 끊겼을 경우 다시 처름부터 loading 되기 때문에 Loding Value 값을 초기화 한다.
     splashViewModel.initLoadingValue()
 } 
-```
-
----
-
-### 📌 지도에 Marker 가 표시되는 시점
-: 지도가 로딩 될때 모든 마커가 표시 되므로 비효율적이라 판단.
-
-#### ❗️ 해결 방법
-<img width="855" alt="스크린샷 2023-03-26 오후 1 37 05" src="https://user-images.githubusercontent.com/83493143/227755563-0550e498-033b-4586-9e95-bce4306305a1.png">
-
-#### 거리 계산 함수
-```kotlin
-private fun getDistance(center: LatLng, target: LatLng): Double {
-    val earthRadius = 6372.8 * 1000
-    val diffLat = Math.toRadians(center.latitude - target.latitude)
-    val diffLon = Math.toRadians(center.longitude - target.longitude)
-    val a = kotlin.math.sin(diffLat / 2).pow(2.0)+
-            kotlin.math.sin(diffLon / 2).pow(2.0) *
-            kotlin.math.cos(Math.toRadians(target.latitude)) *
-            kotlin.math.cos(Math.toRadians(center.latitude))
-    val c = 2 * kotlin.math.asin(kotlin.math.sqrt(a))
-    return earthRadius * c
-}
-```
-
-#### 범위 체크 함수
-```kotlin
-fun checkedRangeForMarker(
-    center: LatLng,
-    rangeLocation: LatLng?,
-    targetLocation: LatLng
-): Boolean {
-    val range = getDistance(center,rangeLocation?: return false)
-    val distance = getDistance(center,targetLocation)
-
-    return range > distance
-}
-```
-
-#### Naver Map 에서 구현 내용
-```kotlin
-NaverMap(
-    properties = mapProperties,
-    uiSettings = mapUiSettings,
-    cameraPositionState = cameraPositionState,
-    onMapLoaded = { initPosition() },
-    onMapClick = { point, latLng -> onMapClick(point,latLng) }
-) {
-    centerItems.forEach {
-        if(checkedRangeForMarker(
-                cameraPositionState.position.target, // 지도의 중앙 위치 좌표
-                cameraPositionState.contentBounds?.northEast, // 지도의 북동쪽 위치 좌표
-                LatLng(it.lat.toDouble(),it.lng.toDouble())) // 마커 좌표 
-        ) {
-            marker(it)
-        }
-    }
-}
 ```
 
 ---
