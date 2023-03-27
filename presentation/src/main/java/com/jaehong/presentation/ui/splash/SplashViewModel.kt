@@ -98,7 +98,7 @@ class SplashViewModel @Inject constructor(
                 .catch { Log.d(TAG, "Insert Center Items: ${it.message}") }
                 .collect {
                     if (it && page == 10) {
-                        completedLoadingValue()
+                        completeInsertCenterItems()
                     }
                     if (it.not()) {
                         Log.d(TAG, "Insert Center Items: No.$page Insert Failure")
@@ -107,7 +107,7 @@ class SplashViewModel @Inject constructor(
         }
     }
 
-    private fun completedLoadingValue() {
+    private fun completeInsertCenterItems() {
         updateUiState(UiState.SUCCESS)
         if (loadingScope.isCancelled && uiState.value != UiState.SUCCESS) {
             increaseLoadingValue()
