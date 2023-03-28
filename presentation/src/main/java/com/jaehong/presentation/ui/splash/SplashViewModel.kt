@@ -47,6 +47,10 @@ class SplashViewModel @Inject constructor(
 
     fun startLoading() {
 
+        if(loadingValue.value < 100) {
+            increaseLoadingValue()
+        }
+
         if (loadingValue.value == 80 && uiState.value != UiState.SUCCESS) {
             loadingScope.cancel()
         }
@@ -54,10 +58,6 @@ class SplashViewModel @Inject constructor(
         if (loadingValue.value == 100 && uiState.value == UiState.SUCCESS) {
             loadingScope.cancel()
             onNavigateToMapView()
-        }
-
-        if(loadingValue.value < 100) {
-            increaseLoadingValue()
         }
 
         if (loadingValue.value == 0) {
