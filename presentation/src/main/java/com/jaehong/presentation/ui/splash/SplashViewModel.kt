@@ -39,7 +39,7 @@ class SplashViewModel @Inject constructor(
     private val _networkConnectState = MutableStateFlow(false)
     val networkConnectState = _networkConnectState.asStateFlow()
 
-    private lateinit var loadingScope: Job
+    private var loadingScope: Job? = null
 
     init {
         observeNetworkState()
@@ -52,11 +52,11 @@ class SplashViewModel @Inject constructor(
         }
 
         if (loadingValue.value == 80 && uiState.value != UiState.SUCCESS) {
-            loadingScope.cancel()
+            loadingScope?.cancel() ?: return
         }
 
         if (loadingValue.value == 100 && uiState.value == UiState.SUCCESS) {
-            loadingScope.cancel()
+            loadingScope?.cancel() ?: return
             onNavigateToMapView()
         }
 
@@ -109,7 +109,7 @@ class SplashViewModel @Inject constructor(
 
     private fun completeInsertCenterItems() {
         updateUiState(UiState.SUCCESS)
-        if (loadingScope.isCancelled && uiState.value != UiState.SUCCESS) {
+        if (loadingScope?.isCancelled?:return && uiState.value != UiState.SUCCESS) {
             increaseLoadingValue()
         }
     }
