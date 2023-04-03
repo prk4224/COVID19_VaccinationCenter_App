@@ -5,9 +5,9 @@ import kotlinx.coroutines.flow.Flow
 
 interface LocalDataSource {
 
-    suspend fun getCenterInfo(): Flow<List<CenterInfoEntity>>
+    fun getCenterInfo(): Flow<List<CenterInfoEntity>>
 
-    suspend fun insertCenterItems(centerItems: List<CenterInfoEntity>): Flow<Boolean>
+    fun insertCenterItems(centerItems: List<CenterInfoEntity>): Flow<Boolean>
 
-    suspend fun observeConnectivityAsFlow(): Flow<Boolean>
+    fun observeConnectivityAsFlow(): Flow<Boolean>
 }
