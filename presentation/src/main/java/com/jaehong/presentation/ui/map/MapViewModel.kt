@@ -1,17 +1,12 @@
 package com.jaehong.presentation.ui.map
 
-import android.content.Context
-import android.content.pm.PackageManager
 import android.util.Log
 import androidx.compose.ui.graphics.Color
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.android.gms.location.LocationServices
 import com.jaehong.domain.model.CenterItem
 import com.jaehong.domain.usecase.MapUseCase
 import com.jaehong.presentation.util.ArrayConstants.colors
-import com.jaehong.presentation.util.ArrayConstants.permissions
 import com.naver.maps.geometry.LatLng
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -19,7 +14,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import kotlin.math.pow
 import kotlin.random.Random
 
 @HiltViewModel
@@ -46,7 +40,7 @@ class MapViewModel @Inject constructor(
         viewModelScope.launch {
             val scope = launch {
                 mapUseCase()
-                    .catch { Log.d(TAG, "Get CenterInfo: DB 저장 데이터 불러오기 실패") }
+                    .catch { Log.d(TAG, "Get CenterInfo: ${it.message}") }
                     .collect { _centerItems.value = it }
             }
             scope.join()
@@ -56,32 +50,12 @@ class MapViewModel @Inject constructor(
     }
 
     fun getCurrentLocation(
-        context: Context,
         moveCamera: (LatLng) -> Unit,
     ) {
-        if(checkedPermission(context)) return
-
-        val fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(context)
-        fusedLocationProviderClient.lastLocation
-            .addOnSuccessListener {
-                val location = LatLng(it.latitude, it.longitude)
-                moveCamera(location)
-            }.addOnFailureListener {
-                Log.d(TAG, "Get Current Location: 현재위치 불러오기 실패")
-            }
-    }
-
-    private fun checkedPermission(context: Context): Boolean {
-        return if (permissions.all {
-                ContextCompat.checkSelfPermission(
-                    context,
-                    it
-                ) == PackageManager.PERMISSION_GRANTED
-            }.not()) {
-            updatePermissionState(true)
-            true
-        } else {
-            false
+        viewModelScope.launch {
+            mapUseCase.getCurrentLocation { state -> updatePermissionState(state) }
+                .catch { Log.d(TAG, "Get Current Location : ${it.message}") }
+                .collect { moveCamera(LatLng(it.lat, it.lng)) }
         }
     }
 
@@ -113,21 +87,9 @@ class MapViewModel @Inject constructor(
         rangeLocation: LatLng?,
         targetLocation: LatLng
     ): Boolean {
-        val range = getDistance(center,rangeLocation?: return false)
-        val distance = getDistance(center,targetLocation)
+        val range = center.distanceTo(rangeLocation ?: return false)
+        val distance = center.distanceTo(targetLocation)
 
         return range > distance
-    }
-
-    private fun getDistance(center: LatLng, target: LatLng): Double {
-        val earthRadius = 6372.8 * 1000
-        val diffLat = Math.toRadians(center.latitude - target.latitude)
-        val diffLon = Math.toRadians(center.longitude - target.longitude)
-        val a = kotlin.math.sin(diffLat / 2).pow(2.0)+
-                kotlin.math.sin(diffLon / 2).pow(2.0) *
-                kotlin.math.cos(Math.toRadians(target.latitude)) *
-                kotlin.math.cos(Math.toRadians(center.latitude))
-        val c = 2 * kotlin.math.asin(kotlin.math.sqrt(a))
-        return earthRadius * c
     }
 }

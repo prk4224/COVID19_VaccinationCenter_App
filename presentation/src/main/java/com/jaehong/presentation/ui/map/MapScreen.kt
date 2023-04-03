@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.jaehong.domain.model.CenterItem
@@ -25,7 +24,6 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 fun MapViewScreen(
     mapViewModel: MapViewModel = hiltViewModel()
 ) {
-    val context = LocalContext.current
     val centerItems = mapViewModel.centerItems.collectAsState().value
     val permissionState = mapViewModel.permissionState.collectAsState().value
     val colorMap = mapViewModel.colorHashMap.collectAsState().value
@@ -44,9 +42,7 @@ fun MapViewScreen(
         mutableStateOf( MapProperties(maxZoom = 21.0, minZoom = 5.0,) )
     }
     val mapUiSettings by remember {
-        mutableStateOf(
-            MapUiSettings(isLocationButtonEnabled = false)
-        )
+        mutableStateOf( MapUiSettings(isLocationButtonEnabled = false) )
     }
 
     // Launcher
@@ -57,7 +53,6 @@ fun MapViewScreen(
         val areGranted = permissionsMap.values.reduce { acc, next -> acc && next }
         if (areGranted) {
             mapViewModel.getCurrentLocation(
-                context = context,
                 moveCamera = { position -> moveCamera(position) }
             )
         }
@@ -74,7 +69,6 @@ fun MapViewScreen(
             mapUiSettings = mapUiSettings,
             cameraPositionState = cameraPositionState,
             initPosition = { mapViewModel.getCurrentLocation(
-                context = context,
                 moveCamera = { position -> moveCamera(position) }
             ) },
             onMapClick = { pointF, latLng -> selectedItem.value = null },
@@ -113,7 +107,6 @@ fun MapViewScreen(
                 .padding(15.dp),
             onClick = {
                 mapViewModel.getCurrentLocation(
-                context = context,
                 moveCamera = { position -> moveCamera(position) }
             ) }
         )
