@@ -45,7 +45,6 @@ class MapViewModel @Inject constructor(
             }
             scope.join()
             setCenterTypeColor(centerItems.value)
-            scope.cancel()
         }
     }
 

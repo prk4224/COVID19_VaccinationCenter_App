@@ -22,8 +22,7 @@ class NetworkManagerModule {
         @ApplicationContext context: Context,
         networkRequest: NetworkRequest
     ): NetworkManager = NetworkManagerImpl(context,networkRequest)
-
-
+    
     @Singleton
     @Provides
     fun provideNetworkRequest(): NetworkRequest {

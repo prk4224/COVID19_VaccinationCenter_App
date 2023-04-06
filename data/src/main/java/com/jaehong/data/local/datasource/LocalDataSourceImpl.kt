@@ -11,8 +11,8 @@ class LocalDataSourceImpl @Inject constructor(
     private val dataBase: VaccinationCenterDataBase,
     private val networkManager: NetworkManager,
 ) : LocalDataSource {
-    override fun getCenterInfo()
-            : Flow<List<CenterInfoEntity>> = flow {
+    override fun getCenterInfo(
+    ): Flow<List<CenterInfoEntity>> = flow {
         emit(dataBase.centerInfoDao().getCenterItems())
     }
 
@@ -22,7 +22,8 @@ class LocalDataSourceImpl @Inject constructor(
         emit(dataBase.centerInfoDao().insertCenterInfoWithListTransaction(centerItems))
     }
 
-    override fun observeConnectivityAsFlow(): Flow<Boolean> = flow {
+    override fun observeConnectivityAsFlow(
+    ): Flow<Boolean> = flow {
         networkManager.observeConnectivityAsFlow().collect {
             emit(it)
         }
