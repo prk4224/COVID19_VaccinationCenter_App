@@ -141,6 +141,12 @@ private fun increaseLoadingValue() {
 #### 로딩 시작 함수 구현
 ```kotlin
 fun startLoading() {
+
+    // 증가 Scope 실행
+    if(loadingValue.value < 100) {
+        increaseLoadingValue()
+    }
+
     // 80% 에서 상태 체크 로딩이 완료되지 않았다면 증가 Scoope cancle
     if (loadingValue.value == 80 && uiState.value != UiState.SUCCESS) {
         loadingScope.cancel()
@@ -149,11 +155,6 @@ fun startLoading() {
     if (loadingValue.value == 100 && uiState.value == UiState.SUCCESS) {
         loadingScope.cancel()
         onNavigateToMapView()
-    }
-
-    // 증가 Scope 실행
-    if(loadingValue.value < 100) {
-        increaseLoadingValue()
     }
 
     // 데이터 불러오기
